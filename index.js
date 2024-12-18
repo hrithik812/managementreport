@@ -21,9 +21,9 @@ const transporter = nodemailer.createTransport({
 
 // Fetch data from SQL Server (example query)
 const fetchDataFromDB = async (startDate,endDate) => {
-    console.log("Start date and end date-----",startDate,endDate);
     
-    const query = `SELECT ISNULL (TOTAL_CLIENT.NO_OF_CLIENT, 0)
+    const query = 
+    `SELECT ISNULL (TOTAL_CLIENT.NO_OF_CLIENT, 0)
            AS TOTAL_INVESTOR,
        ISNULL (TOTAL_SIP_CLIENT.NO_OF_SIP_CLIENT, 0)
            AS TOTAL_SIP_INVESTOR,
@@ -156,36 +156,18 @@ const fetchDataFromDB = async (startDate,endDate) => {
        SIP_CLIENT_FULL_SURRENDER,
        (SELECT SUM (IS_INVESTOR_UNIT_APP.TOTAL_AMOUNT)
                    AS TOTAL_SELL_AMOUNT
-          FROM IS_INVESTOR_UNIT_APP,
-               IS_INVESTOR_DETAILS,
-               IS_INVESTOR_UNIT_STOCK,
-               IS_INVESTOR_ACCOUNT
-         WHERE     IS_INVESTOR_UNIT_APP.INVESTOR_ACCOUNT_ID =
-                   IS_INVESTOR_ACCOUNT.INVESTOR_ACCOUNT_ID
-               AND IS_INVESTOR_UNIT_APP.BUSINESS_DATE BETWEEN '${startDate}'
+          FROM IS_INVESTOR_UNIT_APP
+         WHERE IS_INVESTOR_UNIT_APP.BUSINESS_DATE BETWEEN '${startDate}'
                AND '${endDate}'
                AND IS_INVESTOR_UNIT_APP.MSG_STATUS = 'approved'
                AND IS_INVESTOR_UNIT_APP.HONOR_DISHONOR_CANCEL = 'h'
-               AND IS_INVESTOR_ACCOUNT.INVESTOR_DETAILS_ID =
-                   IS_INVESTOR_DETAILS.INVESTOR_DETAILS_ID
-               AND IS_INVESTOR_UNIT_APP.INVESTOR_UNIT_APP_ID =
-                   IS_INVESTOR_UNIT_STOCK.INVESTOR_UNIT_APP_ID
                AND IS_INVESTOR_UNIT_APP.SELL_SURR_FLAG = 'Sell') TOTAL_SELL,
        (SELECT SUM (IS_INVESTOR_UNIT_APP.TOTAL_AMOUNT)
                    AS TOTAL_SURRENDER_AMOUNT
-          FROM IS_INVESTOR_UNIT_APP,
-               IS_INVESTOR_DETAILS,
-               IS_INVESTOR_UNIT_STOCK,
-               IS_INVESTOR_ACCOUNT
-         WHERE     IS_INVESTOR_UNIT_APP.INVESTOR_ACCOUNT_ID =
-                   IS_INVESTOR_ACCOUNT.INVESTOR_ACCOUNT_ID
-               AND IS_INVESTOR_UNIT_APP.BUSINESS_DATE BETWEEN '${startDate}'
+          FROM IS_INVESTOR_UNIT_APP
+         WHERE  IS_INVESTOR_UNIT_APP.BUSINESS_DATE BETWEEN '${startDate}'
                AND '${endDate}'
                AND IS_INVESTOR_UNIT_APP.MSG_STATUS = 'approved'
-               AND IS_INVESTOR_ACCOUNT.INVESTOR_DETAILS_ID =
-                   IS_INVESTOR_DETAILS.INVESTOR_DETAILS_ID
-               AND IS_INVESTOR_UNIT_APP.INVESTOR_UNIT_APP_ID =
-                   IS_INVESTOR_UNIT_STOCK.INVESTOR_UNIT_APP_ID
                AND IS_INVESTOR_UNIT_APP.SELL_SURR_FLAG = 'Surr')
                TOTAL_SURRENDER
  WHERE 1 = 1`;
