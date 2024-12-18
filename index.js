@@ -269,9 +269,7 @@ app.get('/fetchValues',async(req,res)=>{
 app.get('/getBusinessDate',async(req,res)=>{
     try{
         const data = await fetchBusinessDate();
-         
-        
-      return data[0];
+        return data[0];
     }catch(error){
         res.status(500).send("Something went error");
     }
