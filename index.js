@@ -8,15 +8,26 @@ const config = require('./config');
 const { formatDate, updateDateToFirst } = require('./utils');
 const app = express();
 // Email Configuration
+// const transporter = nodemailer.createTransport({
+//     service: config.email.service,
+//     auth: {
+//         user: config.email.user,
+//         pass: config.email.pass,
+//     },
+// });
+
 const transporter = nodemailer.createTransport({
-    service: config.email.service,
+    host: 'smtp.office365.com', // Microsoft SMTP server
+    port: 587, // Port for STARTTLS
+    secure: false, // Secure false for STARTTLS
     auth: {
-        user: config.email.user,
-        pass: config.email.pass,
+        user: 'Hrithik@shanta-aml.com', // Your email address
+        pass: 'Destroyer2712#', // Your email password or app password
+    },
+    tls: {
+        ciphers: 'SSLv3', // Optional: Ensures secure connection
     },
 });
-
-
 
 
 // Fetch data from SQL Server (example query)
@@ -182,31 +193,73 @@ WHERE BUSINESS_DATE < DATEADD(DAY, -1,CAST(GETDATE() AS DATE)) order by BUSINESS
 return await queryDatabase(query);
 
 }
+const sendEmail = async (outputPath) => {
+    const mailOptions = {
+        from: 'Hrithik@shanta-aml.com', // MUST match the authenticated email
+        to: 'kazi.monir@shanta-aml.com', // Recipient's email (same as sender for testing)
+        subject: 'Sales & Investor Summary Report',
+        text: 'This is automated mail which consist of Sales & Investor Summary Report',
+        attachments: [
+                             {
+                                filename: 'Report.pdf',
+                                path: outputPath,
+                             },
+                      ]    
+    }
 
+    try {
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Email sent:', info.response);
+    } catch (error) {
+        console.error('Error sending email:', error.message);
+    }
+};
 // Schedule Email Sending with PDF Attachment
-cron.schedule('26 12 * * *', async () => {
+cron.schedule('58 16 * * *', async () => {
     const outputPath = path.join(__dirname, "output.pdf");
 
     try {
         // Generate the PDF
+        const data=await getMainData();
+        
         await generatePDF(outputPath,data);
         console.log('PDF generated successfully');
 
         // Send the Email with the PDF as an attachment
-        await transporter.sendMail({
-            from: `"Your App" <${config.email.user}>`,
-            to: config.email.tousermail,
-            subject: 'Scheduled Email with PDF',
-            text: 'This is an automated email with the generated PDF attached.',
-            attachments: [
-                {
-                    filename: 'table.pdf',
-                    path: outputPath,
-                },
-            ],
-        });
 
-        console.log('Email sent successfully with PDF attachment');
+        // const mailOptions = {
+        //     from: '"Shanta Asset Management Limited "<${config.email.user}>', // Sender address
+        //     to: 'Hrithik@shanta-aml.com', // Recipient address
+        //     subject: 'Scheduled Email with PDF',
+        //     text: 'This is an automated email with the generated PDF attached.',
+        //     attachments: [
+        //                 {
+        //                     filename: 'table.pdf',
+        //                     path: outputPath,
+        //                  },
+        //              ]
+        // };
+        // transporter.sendMail(mailOptions, (error, info) => {
+        //     if (error) {
+        //         return console.log('Error:', error);
+        //     }
+        //     console.log('Message sent:', info.response);
+        // });
+        sendEmail(outputPath);
+        
+        // await transporter.sendMail({
+        //     from: `"Your App" <${config.email.user}>`,
+        //     to: config.email.tousermail,
+        //     subject: 'Scheduled Email with PDF',
+        //     text: 'This is an automated email with the generated PDF attached.',
+        //     attachments: [
+        //         {
+        //             filename: 'table.pdf',
+        //             path: outputPath,
+        //         },
+        //     ],
+        // });
+
     } catch (error) {
         console.error('Error sending email with PDF:', error.message);
     }
@@ -217,8 +270,9 @@ app.get("/generate-pdf", async (req, res) => {
     const outputPath = path.join(__dirname, "output.pdf");
 
     try {
+        const data=await getMainData()
         await generatePDF(outputPath, data);
-        res.download(outputPath, "table.pdf", (err) => {
+        res.download(outputPath, "Report.pdf", (err) => {
             if (err) {
                 console.error("Error during file download:", err?.message);
                 res.status(500).send("Failed to generate PDF");
@@ -229,6 +283,19 @@ app.get("/generate-pdf", async (req, res) => {
         res.status(500).send("Error generating PDF");
     }
 });
+const getMainData=async()=>{
+    const businessDateEnd = await fetchBusinessDate();
+     
+    const endDate=formatDate(businessDateEnd[0].BUSINESS_DATE);
+
+   const startDate=updateDateToFirst(endDate);
+
+   
+   // const data = await fetchDataFromDB(startDate,endDate);
+  const data = await fetchDataFromDB('2024-11-01','2024-11-30');
+   
+  return data
+}
 app.get('/fetchValues',async(req,res)=>{
     try{
         const businessDateEnd = await fetchBusinessDate();
@@ -238,8 +305,9 @@ app.get('/fetchValues',async(req,res)=>{
         const startDate=updateDateToFirst(endDate);
 
         
-        const data = await fetchDataFromDB(startDate,endDate);
-        
+        // const data = await fetchDataFromDB(startDate,endDate);
+       const data = await fetchDataFromDB('2024-11-01','2024-11-30');
+
         res.status(200).json({
             msg:"Hitted successfully",
             data

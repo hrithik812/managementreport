@@ -20,7 +20,22 @@ const queryDatabase = async (query) => {
   
   try {
     const result = await pool.request().query(query);
-    return result.recordset; // Return the result
+    const resultSet=result.recordset;
+    const roundedData = resultSet.map(item => {
+      const roundValue = (value) => {
+          const decimalPart = value - Math.floor(value);
+          return decimalPart >= 0.5 ? Math.ceil(value) : Math.floor(value);
+      };
+  
+      return {
+          ...item,
+          TOTAL_SELL_AMOUNT: roundValue(item.TOTAL_SELL_AMOUNT),
+          TOTAL_SURRENDER_AMOUNT: roundValue(item.TOTAL_SURRENDER_AMOUNT)
+      };
+  });
+    
+    return roundedData;
+    
   } catch (err) {
     console.error('Error querying the database:', err.message);
     throw err;

@@ -46,7 +46,7 @@ async function generatePDF(outputPath,data) {
 
     // Set font sizes and colors
     const fontSize = 12;
-    const greenFill = rgb(0, 0.5, 0);
+    const greenFill = rgb(0.5569, 0.5412, 0.1216);
     const blackFill = rgb(0, 0, 0);
 
     // Draw Header Section
@@ -58,7 +58,7 @@ async function generatePDF(outputPath,data) {
         color: greenFill,
     });
     page.drawText("Daily Sales & Investor Report", {
-        x: 260,
+        x: 200,
         y: 370,
         size: fontSize + 2,
         color: rgb(1, 1, 1),
@@ -71,8 +71,8 @@ async function generatePDF(outputPath,data) {
         height: 30,
         color: greenFill,
     });
-    page.drawText("26-Nov-24", {
-        x: 260,
+    page.drawText("30-Nov-24", {
+        x: 240,
         y: 320,
         size: fontSize,
         color: rgb(1, 1, 1),
@@ -89,10 +89,29 @@ async function generatePDF(outputPath,data) {
 
     // Draw Table Rows
     const rowData = [
-        ["Total Client", data[0].TOTAL_INVESTOR, data[0].NEW_ADDED_INVESTOR, data[0].NO_OF_FULL_SURRENDER_INVESTOR, data[0].TOTAL_INVESTOR - data[0].NO_OF_FULL_SURRENDER_INVESTOR],
-        ["Total SIP Client", data[0].TOTAL_SIP_INVESTOR, data[0].NEW_ADDED_SIP_INVESTOR, data[0].NO_OF_FULL_SURRENDER_SIP_INVESTOR, data[0].TOTAL_SIP_INVESTOR - data[0].NO_OF_FULL_SURRENDER_SIP_INVESTOR],
-        ["Sale", data[0].TOTAL_SELL_AMOUNT, data[0].TOTAL_SURRENDER_AMOUNT, "-", data[0].TOTAL_SELL_AMOUNT - data[0].TOTAL_SURRENDER_AMOUNT],
-    ];
+      [
+          "Total Client",
+          data[0].TOTAL_INVESTOR,
+          data[0].NEW_ADDED_INVESTOR,
+          data[0].NO_OF_FULL_SURRENDER_INVESTOR,
+          data[0].NEW_ADDED_INVESTOR - data[0].NO_OF_FULL_SURRENDER_INVESTOR
+      ],
+      [
+          "Total SIP Client",
+          data[0].TOTAL_SIP_INVESTOR,
+          data[0].NEW_ADDED_SIP_INVESTOR,
+          data[0].NO_OF_FULL_SURRENDER_SIP_INVESTOR,
+          data[0].NEW_ADDED_SIP_INVESTOR - data[0].NO_OF_FULL_SURRENDER_SIP_INVESTOR
+      ],
+      [
+          "Sale",
+          data[0].TOTAL_SELL_AMOUNT.toLocaleString("en-IN"), // Format with commas
+          "-",
+          data[0].TOTAL_SURRENDER_AMOUNT.toLocaleString("en-IN"), // Format with commas
+          (data[0].TOTAL_SELL_AMOUNT - data[0].TOTAL_SURRENDER_AMOUNT).toLocaleString("en-IN") // Format result with commas
+      ]
+  ];
+  
     
     startY -= 20;
     rowData.forEach((row, rowIndex) => {
