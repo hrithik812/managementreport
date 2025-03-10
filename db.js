@@ -29,8 +29,8 @@ const queryDatabase = async (query) => {
   
       return {
           ...item,
-          TOTAL_SELL_AMOUNT: roundValue(item.TOTAL_SELL_AMOUNT),
-          TOTAL_SURRENDER_AMOUNT: roundValue(item.TOTAL_SURRENDER_AMOUNT)
+          // TOTAL_SELL_AMOUNT: roundValue(item.TOTAL_SELL_AMOUNT),
+          // TOTAL_SURRENDER_AMOUNT: roundValue(item.TOTAL_SURRENDER_AMOUNT)
       };
   });
     

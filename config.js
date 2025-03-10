@@ -20,6 +20,12 @@ module.exports = {
       encrypt: true,                   // Use SSL encryption
       trustServerCertificate: true,    // Trust self-signed certificates
       trustedConnection: true      
-    }                    
+    },
+    pool: {
+      max: 10,
+      min: 0,
+      idleTimeoutMillis: 30000
+    },
+    requestTimeout: 600000 // Increase request timeout to 60 seconds                 
   }
 };
